@@ -29,6 +29,7 @@ jobs:
         run: |
           node scripts/patch-worker.js
           cp -r .open-next/assets/. .open-next/
+          [ -d .open-next/_next ] && mv .open-next/_next .open-next/next-static || true
           mv .open-next/worker.js .open-next/_worker.js
 
       - name: Deploy to Cloudflare Pages
