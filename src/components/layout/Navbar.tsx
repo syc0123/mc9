@@ -2,8 +2,14 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function Navbar() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const supabase = await createClient()
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch {
+    // Supabase 초기화 실패 시 미인증 상태로 렌더링
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
