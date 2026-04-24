@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import ThemeToggle from "./ThemeToggle"
 
 export default async function Navbar() {
   let user = null
@@ -8,38 +9,44 @@ export default async function Navbar() {
     const { data } = await supabase.auth.getUser()
     user = data.user
   } catch {
-    // Supabase 초기화 실패 시 미인증 상태로 렌더링
+    // Supabase init failed — render unauthenticated state
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-green-600">⛏</span>
-          <span>MC9</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="/potions" className="hover:text-green-600 transition-colors">포션 사전</Link>
-          <Link href="/enchants" className="hover:text-green-600 transition-colors">인챈트</Link>
-          <Link href="/crafting" className="hover:text-green-600 transition-colors">크래프팅</Link>
-          {user && (
-            <Link href="/servers" className="hover:text-green-600 transition-colors">내 서버</Link>
-          )}
-        </nav>
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-sm">
+      <div className="container mx-auto flex h-14 items-center justify-between px-4">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2 font-semibold text-base tracking-tight">
+            <span className="text-primary">⛏</span>
+            <span>MC9</span>
+          </Link>
+          <nav className="hidden md:flex items-center gap-1">
+            <NavLink href="/potions">포션 사전</NavLink>
+            <NavLink href="/enchants">인챈트</NavLink>
+            <NavLink href="/crafting">크래프팅</NavLink>
+            {user && <NavLink href="/servers">내 서버</NavLink>}
+          </nav>
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <Link
               href="/servers"
-              className="text-sm font-medium px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+              className="text-sm font-medium px-4 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] transition-colors"
             >
               대시보드
             </Link>
           ) : (
             <>
-              <Link href="/login" className="text-sm hover:text-green-600">로그인</Link>
+              <Link
+                href="/login"
+                className="text-sm text-foreground-muted hover:text-foreground transition-colors px-3 py-1.5"
+              >
+                로그인
+              </Link>
               <Link
                 href="/register"
-                className="text-sm font-medium px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
+                className="text-sm font-medium px-4 py-1.5 rounded-md bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] transition-colors"
               >
                 시작하기
               </Link>
@@ -48,5 +55,16 @@ export default async function Navbar() {
         </div>
       </div>
     </header>
+  )
+}
+
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="px-3 py-1.5 rounded-md text-sm text-foreground-muted hover:text-foreground hover:bg-accent transition-colors"
+    >
+      {children}
+    </Link>
   )
 }

@@ -20,15 +20,15 @@ const categoryLabel: Record<string, string> = {
 
 function RecipeGrid({ grid }: { grid: Recipe["grid"] }) {
   return (
-    <div className="inline-grid grid-cols-3 gap-1 p-2 bg-gray-200 rounded-lg flex-shrink-0">
+    <div className="inline-grid grid-cols-3 gap-1 p-2 bg-surface rounded-lg border border-border flex-shrink-0">
       {grid.flat().map((slot, i) => (
         <div
           key={i}
-          className="w-10 h-10 bg-gray-700 rounded flex items-center justify-center text-xs text-gray-300 font-medium overflow-hidden p-0.5"
+          className="w-9 h-9 bg-background rounded border border-border flex items-center justify-center text-[10px] text-foreground-muted font-medium overflow-hidden p-0.5"
         >
           {slot ? (
             <span className="text-center leading-tight" title={slot}>
-              {slot.slice(0, 6)}
+              {slot.slice(0, 5)}
             </span>
           ) : null}
         </div>
@@ -46,29 +46,37 @@ export default function CraftingPage() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-3">크래프팅 레시피</h1>
-      <p className="text-gray-600 mb-8">
-        제작대(3x3)에서 재료를 배치해 아이템을 제작하세요. 레시피 그리드를 참고하세요.
-      </p>
+      <div className="mb-10">
+        <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted mb-2">Reference</p>
+        <h1 className="text-3xl font-bold tracking-tight mb-2">크래프팅 레시피</h1>
+        <p className="text-sm text-foreground-muted leading-relaxed max-w-xl">
+          제작대(3x3)에서 재료를 배치해 아이템을 제작하세요. 레시피 그리드를 참고하세요.
+        </p>
+      </div>
       {Object.entries(byCategory).map(([cat, recipes]) => (
         <section key={cat} className="mb-10">
-          <h2 className="text-2xl font-semibold mb-5">{categoryLabel[cat] ?? cat}</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3 mb-4">
+            <h2 className="text-lg font-semibold tracking-tight">{categoryLabel[cat] ?? cat}</h2>
+            <span className="text-xs px-2 py-0.5 rounded-full border border-border text-foreground-muted font-medium">
+              {recipes.length}
+            </span>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
             {recipes.map((recipe) => (
               <div
                 key={recipe.id}
-                className="p-5 rounded-xl border hover:border-green-400 hover:shadow-md transition-all"
+                className="p-4 rounded-lg border border-border bg-surface hover:border-primary/40 transition-all"
               >
                 <div className="flex items-start gap-4">
                   <RecipeGrid grid={recipe.grid} />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold mb-1">{recipe.nameKo}</h3>
-                    <p className="text-xs text-gray-400 mb-2">
-                      {recipe.output.item} x{recipe.output.count}
+                    <h3 className="text-sm font-semibold mb-1">{recipe.nameKo}</h3>
+                    <p className="text-xs text-foreground-muted mb-2 tabular-nums">
+                      {recipe.output.item} × {recipe.output.count}
                     </p>
-                    <p className="text-sm text-gray-600">{recipe.description}</p>
+                    <p className="text-xs text-foreground-muted leading-relaxed">{recipe.description}</p>
                     {recipe.shapeless && (
-                      <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 mt-2 inline-block">
+                      <span className="text-xs px-1.5 py-0.5 rounded border border-border text-foreground-muted mt-2 inline-block">
                         무형
                       </span>
                     )}

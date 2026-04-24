@@ -9,7 +9,7 @@ export default function ContentLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-4 py-8">
+      <div className="container mx-auto max-w-5xl px-4 py-10">
         {children}
       </div>
     </>

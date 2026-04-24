@@ -35,58 +35,67 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-green-600">&#9935; MC9</Link>
-          <h1 className="text-2xl font-bold mt-4 mb-2">로그인</h1>
-          <p className="text-gray-500">계정에 로그인하세요</p>
+          <Link href="/" className="text-xl font-semibold text-primary">⛏ MC9</Link>
+          <h1 className="text-2xl font-bold tracking-tight mt-6 mb-1">로그인</h1>
+          <p className="text-sm text-foreground-muted">계정에 로그인하세요</p>
         </div>
-        <form onSubmit={handleLogin} className="bg-white rounded-2xl shadow-sm border p-8 space-y-5">
-          {error && <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>}
-          <div>
-            <label className="block text-sm font-medium mb-1.5">이메일</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1.5">비밀번호</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="••••••••"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
-          >
-            {loading ? '로그인 중...' : '로그인'}
-          </button>
-          <div className="relative text-center">
-            <span className="text-gray-400 text-sm">또는</span>
+        <div className="rounded-lg border border-border bg-surface p-6 space-y-4">
+          {error && (
+            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium uppercase tracking-wider text-foreground-muted">이메일</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium uppercase tracking-wider text-foreground-muted">비밀번호</label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="w-full px-3 py-2 rounded-md border border-border bg-background text-foreground text-sm placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
+                placeholder="••••••••"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50"
+            >
+              {loading ? '로그인 중...' : '로그인'}
+            </button>
+          </form>
+          <div className="flex items-center gap-3 text-xs text-foreground-muted">
+            <div className="flex-1 h-px bg-border" />
+            <span>또는</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full py-3 border rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-2 border border-border rounded-md text-sm font-medium text-foreground hover:bg-accent transition-colors flex items-center justify-center gap-2"
           >
-            <span>G</span> Google로 로그인
+            <span className="font-bold text-base leading-none">G</span>
+            Google로 로그인
           </button>
-        </form>
-        <p className="text-center text-sm text-gray-500 mt-6">
+        </div>
+        <p className="text-center text-sm text-foreground-muted mt-6">
           계정이 없으신가요?{' '}
-          <Link href="/register" className="text-green-600 hover:underline">회원가입</Link>
+          <Link href="/register" className="text-primary hover:underline font-medium">회원가입</Link>
         </p>
       </div>
     </div>
