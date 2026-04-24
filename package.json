@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/generate-mc-data.js",
     "dev": "next dev",
+    "prebuild": "node scripts/generate-mc-data.js",
     "build": "next build",
     "build:cloudflare": "opennextjs-cloudflare build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "data:generate": "node scripts/generate-mc-data.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
@@ -34,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "minecraft-data": "^3.109.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.84.1"
