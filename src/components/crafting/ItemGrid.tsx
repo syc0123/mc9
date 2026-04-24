@@ -38,12 +38,8 @@ export function ItemGrid({ items, recipeMap, selected, onSelect }: Props) {
               style={{ imageRendering: 'pixelated' }}
               onError={(e) => {
                 const el = e.target as HTMLImageElement
-                if (el.src.includes('/textures/item/')) {
-                  el.src = el.src.replace('/textures/item/', '/textures/block/')
-                } else {
-                  el.style.display = 'none'
-                  el.nextElementSibling?.classList.remove('hidden')
-                }
+                el.style.display = 'none'
+                el.nextElementSibling?.classList.remove('hidden')
               }}
             />
             <span className="hidden text-[8px] text-foreground-muted font-medium leading-tight text-center px-0.5 break-all">

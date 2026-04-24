@@ -33,12 +33,7 @@ function ItemIcon({ name, itemMap, size = 32 }: { name: string | null; itemMap: 
       className="object-contain"
       style={{ imageRendering: 'pixelated', width: size, height: size }}
       onError={(e) => {
-        const el = e.target as HTMLImageElement
-        if (el.src.includes('/textures/item/')) {
-          el.src = el.src.replace('/textures/item/', '/textures/block/')
-        } else {
-          el.style.opacity = '0'
-        }
+        (e.target as HTMLImageElement).style.display = 'none'
       }}
     />
   )

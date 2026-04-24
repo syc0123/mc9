@@ -43,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# minecraft texture cache (generated, not committed)
+/.texture-cache

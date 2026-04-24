@@ -10,7 +10,8 @@
     "build:cloudflare": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "eslint",
-    "data:generate": "node scripts/generate-mc-data.js"
+    "data:generate": "node scripts/generate-mc-data.js",
+    "icons:render": "node scripts/render-icons.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
@@ -38,6 +39,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "minecraft-data": "^3.109.0",
+    "pngjs": "^7.0.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.84.1"

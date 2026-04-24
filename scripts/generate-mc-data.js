@@ -25,7 +25,7 @@ for (const version of VERSIONS) {
     displayName: item.displayName,
     stackSize: item.stackSize,
     maxDurability: item.maxDurability ?? null,
-    iconUrl: ICON_BASE(version, 'item', item.name),
+    iconUrl: `/icons/${version}/${item.name}.png`,
   }));
   fs.writeFileSync(path.join(outDir, 'items.json'), JSON.stringify(items));
 
