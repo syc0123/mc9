@@ -41,6 +41,8 @@ export async function proxy(request: NextRequest) {
   return supabaseResponse
 }
 
+export const runtime = 'edge'
+
 export const config = {
   matcher: ['/servers/:path*'],
 }
