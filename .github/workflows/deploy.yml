@@ -1,0 +1,37 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (OpenNext + webpack)
+        run: npx @opennextjs/cloudflare build
+
+      - name: Restructure output for Pages
+        run: |
+          cp -r .open-next/assets/. .open-next/
+          mv .open-next/worker.js .open-next/_worker.js
+
+      - name: Deploy to Cloudflare Pages
+        run: npx wrangler pages deploy .open-next --project-name=mc9 --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
