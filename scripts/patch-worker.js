@@ -4,11 +4,15 @@ const workerPath = '.open-next/worker.js';
 let content = fs.readFileSync(workerPath, 'utf8');
 
 const marker = '// - `Request`s are handled by the Next server';
-const patch = `// Serve _next/ assets via ASSETS (renamed to next-static/ in deploy to avoid wrangler _ exclusion bug)
+const patch = `// Serve _next/ assets via ASSETS (renamed to next-static/ to avoid wrangler _ exclusion bug)
             if (url.pathname.startsWith('/_next/')) {
                 const assetUrl = new URL(request.url);
                 assetUrl.pathname = '/next-static' + assetUrl.pathname.substring(6);
                 return env.ASSETS.fetch(assetUrl.toString());
+            }
+            // Serve public static files (images, data, etc.) via ASSETS
+            if (url.pathname.match(/\\.(?:json|png|jpg|jpeg|svg|webp|ico|txt|xml)$/)) {
+                return env.ASSETS.fetch(request);
             }
             `;
 
