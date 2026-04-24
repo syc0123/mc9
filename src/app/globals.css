@@ -77,3 +77,7 @@ body {
 * {
   border-color: var(--border);
 }
+
+.pixelated {
+  image-rendering: pixelated;
+}
