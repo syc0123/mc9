@@ -16,8 +16,9 @@ const { PNG } = require('pngjs');
 
 /** @returns {[number,number]|null} texture [u,v] for output pixel (x,y) on TOP face */
 function topFaceUV(x, y) {
+  // Diamond apex at (16, 0), basis +U → (+16, +8), +V → (−16, +8).
   const dx = x - 16;
-  const dy = y - 8;
+  const dy = y;
   const u = Math.floor((dx + dy * 2) / 2);
   const v = Math.floor((-dx + dy * 2) / 2);
   if (u < 0 || u >= 16 || v < 0 || v >= 16) return null;
