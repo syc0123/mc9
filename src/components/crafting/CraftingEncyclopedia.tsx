@@ -1,25 +1,39 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { McItem, McRecipe } from '@/lib/data/mc-items'
 import { ItemGrid } from './ItemGrid'
 import { RecipePanel } from './RecipePanel'
 import { Search, ChevronDown } from 'lucide-react'
 
 type Props = {
-  initialItems: McItem[]
-  initialRecipes: McRecipe[]
   initialVersion: string
   versions: string[]
 }
 
-export function CraftingEncyclopedia({ initialItems, initialRecipes, initialVersion, versions }: Props) {
+export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
   const [version, setVersion] = useState(initialVersion)
-  const [items, setItems] = useState<McItem[]>(initialItems)
-  const [recipes, setRecipes] = useState<McRecipe[]>(initialRecipes)
+  const [items, setItems] = useState<McItem[]>([])
+  const [recipes, setRecipes] = useState<McRecipe[]>([])
   const [search, setSearch] = useState('')
   const [navStack, setNavStack] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadVersion(initialVersion)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function loadVersion(v: string) {
+    setLoading(true)
+    const [itemsRes, recipesRes] = await Promise.all([
+      fetch(`/data/${v}/items.json`),
+      fetch(`/data/${v}/recipes.json`),
+    ])
+    const [newItems, newRecipes] = await Promise.all([itemsRes.json(), recipesRes.json()])
+    setItems(newItems)
+    setRecipes(newRecipes)
+    setLoading(false)
+  }
 
   const recipeMap = useMemo(() => {
     const map = new Map<string, McRecipe[]>()
@@ -43,17 +57,9 @@ export function CraftingEncyclopedia({ initialItems, initialRecipes, initialVers
   }, [items, search])
 
   async function handleVersionChange(v: string) {
-    setLoading(true)
-    const [itemsRes, recipesRes] = await Promise.all([
-      fetch(`/data/${v}/items.json`),
-      fetch(`/data/${v}/recipes.json`),
-    ])
-    const [newItems, newRecipes] = await Promise.all([itemsRes.json(), recipesRes.json()])
-    setItems(newItems)
-    setRecipes(newRecipes)
     setVersion(v)
     setNavStack([])
-    setLoading(false)
+    await loadVersion(v)
   }
 
   function handleSelect(name: string) {

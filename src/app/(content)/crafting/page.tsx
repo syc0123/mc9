@@ -1,4 +1,4 @@
-import { getItems, getRecipes, SUPPORTED_VERSIONS, DEFAULT_VERSION } from '@/lib/data/mc-items'
+import { SUPPORTED_VERSIONS, DEFAULT_VERSION } from '@/lib/data/mc-items'
 import { CraftingEncyclopedia } from '@/components/crafting/CraftingEncyclopedia'
 import type { Metadata } from 'next'
 
@@ -8,12 +8,8 @@ export const metadata: Metadata = {
 }
 
 export default function CraftingPage() {
-  const items = getItems(DEFAULT_VERSION)
-  const recipes = getRecipes(DEFAULT_VERSION)
   return (
     <CraftingEncyclopedia
-      initialItems={items}
-      initialRecipes={recipes}
       initialVersion={DEFAULT_VERSION}
       versions={[...SUPPORTED_VERSIONS]}
     />
