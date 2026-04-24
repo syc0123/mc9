@@ -28,6 +28,18 @@ jobs:
       - name: Restructure output for Pages
         run: |
           cp -r .open-next/assets/. .open-next/
+          # Patch worker.js to serve /_next/static/ and public files via env.ASSETS
+          node -e "
+            const fs = require('fs');
+            let w = fs.readFileSync('.open-next/worker.js', 'utf8');
+            const patch = \`
+            // Serve static assets directly via ASSETS binding
+            if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/_next/data/')) {
+                return env.ASSETS.fetch(request);
+            }\`;
+            w = w.replace('// - \`Request\`s are handled by the Next server', patch + '\n            // - \`Request\`s are handled by the Next server');
+            fs.writeFileSync('.open-next/worker.js', w);
+          "
           mv .open-next/worker.js .open-next/_worker.js
 
       - name: Deploy to Cloudflare Pages
