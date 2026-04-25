@@ -96,7 +96,7 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
   const currentItem = navStack[navStack.length - 1] ?? null
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col">
       {/* Page Header */}
       <div className="mb-6">
         <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted mb-1">Reference</p>
@@ -146,10 +146,10 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
         {loading ? '로딩 중...' : `${filtered.length}개 아이템`}
       </p>
 
-      {/* Main layout */}
-      <div className={`flex gap-4 flex-1 min-h-0 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
-        {/* Item Grid */}
-        <div className={`flex-1 overflow-y-auto ${currentItem ? 'hidden lg:block lg:flex-1' : ''}`}>
+      {/* Main layout — page-level scroll, recipe panel sticks below sticky navbar */}
+      <div className={`flex gap-4 items-start ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+        {/* Item Grid (extra padding so selected ring/scale-110 isn't clipped by container edges) */}
+        <div className={`flex-1 min-w-0 px-1 py-1 ${currentItem ? 'hidden lg:block' : ''}`}>
           <ItemGrid
             items={filtered}
             recipeMap={recipeMap}
@@ -160,9 +160,9 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
           />
         </div>
 
-        {/* Recipe Panel */}
+        {/* Recipe Panel — sticky below navbar (h-14 = top-14), max-height fits viewport */}
         {currentItem && (
-          <div className="w-full lg:w-96 flex-shrink-0 border border-border rounded-xl bg-surface p-4 flex flex-col min-h-0 max-h-[calc(100vh-12rem)] overflow-hidden">
+          <div className="w-full lg:w-96 flex-shrink-0 border border-border rounded-xl bg-surface p-4 flex flex-col lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] overflow-hidden">
             <RecipePanel
               itemName={currentItem}
               itemMap={itemMap}

@@ -32,7 +32,7 @@ const ROOT      = path.join(__dirname, '..');
 const CACHE_DIR = path.join(ROOT, '.texture-cache');
 const OUT_BASE  = path.join(ROOT, 'public', 'icons');
 
-const OUTPUT_SIZE = 64; // final PNG size
+const OUTPUT_SIZE = 192; // final PNG size — integer multiple of 32/48/64 display sizes (aliasing-free)
 const BATCH_SIZE  = 10;
 
 // ── Network ───────────────────────────────────────────────────────────────────
