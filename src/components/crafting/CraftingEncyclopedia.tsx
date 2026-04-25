@@ -164,7 +164,7 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
         <div
           className="
             mt-4 w-full border border-border rounded-xl bg-surface p-4 flex flex-col overflow-hidden
-            lg:mt-0 lg:fixed lg:top-20 lg:w-96 lg:max-h-[calc(100vh-6rem)] lg:z-30
+            lg:mt-0 lg:fixed lg:top-52 lg:w-96 lg:max-h-[calc(100vh-14rem)] lg:z-30
             lg:right-[max(1rem,calc((100vw-64rem)/2+1rem))]
           "
         >
