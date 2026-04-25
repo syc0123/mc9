@@ -13,13 +13,21 @@ type Props = {
 
 /** Render the 3x3 (or 2x2 condensed) crafting grid. */
 export function RecipeGrid({ recipe, itemMap, recipeMap, onNavigate, is2x2 = false }: Props) {
-  const fullGrid: (string | null)[][] = recipe.shaped && recipe.grid
+  const rawGrid: (string | null)[][] = recipe.shaped && recipe.grid
     ? recipe.grid
     : [
         [recipe.ingredients?.[0] ?? null, recipe.ingredients?.[1] ?? null, recipe.ingredients?.[2] ?? null],
         [recipe.ingredients?.[3] ?? null, recipe.ingredients?.[4] ?? null, recipe.ingredients?.[5] ?? null],
         [recipe.ingredients?.[6] ?? null, recipe.ingredients?.[7] ?? null, recipe.ingredients?.[8] ?? null],
       ]
+
+  // Always pad to full 3x3 (each row padded to 3 cols, missing rows filled with nulls)
+  const emptyRow = (): (string | null)[] => [null, null, null]
+  const fullGrid: (string | null)[][] = [
+    rawGrid[0] ? [rawGrid[0][0] ?? null, rawGrid[0][1] ?? null, rawGrid[0][2] ?? null] : emptyRow(),
+    rawGrid[1] ? [rawGrid[1][0] ?? null, rawGrid[1][1] ?? null, rawGrid[1][2] ?? null] : emptyRow(),
+    rawGrid[2] ? [rawGrid[2][0] ?? null, rawGrid[2][1] ?? null, rawGrid[2][2] ?? null] : emptyRow(),
+  ]
 
   // Slice to 2x2 if applicable (top-left corner)
   const grid = is2x2
