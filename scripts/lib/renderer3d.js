@@ -286,7 +286,8 @@ function renderBlock(elements, textures, resolution) {
   const pixels = new Uint8Array(R * R * 4);
   const zbuffer = new Float32Array(R * R).fill(-Infinity);
 
-  const scale = R * 0.8 / 16;
+  // Y(45°)+X(30°) rotation: 16-unit cube projects ~28 units tall; 0.85/28 ≈ 10% padding
+  const scale = R * 0.85 / 28;
   const cx = R / 2, cy = R / 2;
 
   // Process elements back-to-front is not needed with z-buffer; iterate all

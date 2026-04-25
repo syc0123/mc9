@@ -73,27 +73,76 @@ function synthesizeFullCube(textures) {
   };
 }
 
+// ── Fallback synthesis helpers ─────────────────────────────────────────────────
+
+/**
+ * Synthesize a pillar box element with a single uniform texture on all faces.
+ * UV is derived automatically from the box cross-section dimensions.
+ * @param {number[]} from      [x1, y1, z1]
+ * @param {number[]} to        [x2, y2, z2]
+ * @param {string}   texPath   resolved texture path, e.g. "block/tuff"
+ */
+function synthesizePillarBox(from, to, texPath) {
+  const [x1,,z1] = from;
+  const [x2,,z2] = to;
+  const faceUV = [x1, z1, x2, z2]; // cross-section UV for side faces
+  const topUV  = [x1, z1, x2, z2];
+  const FACES  = ['up', 'down', 'north', 'south', 'east', 'west'];
+  const faces  = {};
+  for (const f of FACES) {
+    faces[f] = { texture: '#all', uv: f === 'up' || f === 'down' ? topUV : faceUV };
+  }
+  return { elements: [{ from, to, faces }], textures: { all: texPath } };
+}
+
+/** Synthesize a wall pillar (4,0,4)→(12,16,12). Wrapper around synthesizePillarBox. */
+function synthesizeWallPillar(texturePath) {
+  return synthesizePillarBox([4, 0, 4], [12, 16, 12], texturePath);
+}
+
+/**
+ * Derive the base texture name for a _wall block.
+ * e.g. tuff_wall → tuff, cobblestone_wall → cobblestone,
+ *      tuff_brick_wall → tuff_bricks (tries with trailing 's' first).
+ */
+function wallBaseName(name) {
+  // Remove trailing _wall
+  const base = name.replace(/_wall$/, '');
+  // For *_brick variants try plural form first, then singular
+  if (base.endsWith('_brick')) return [base + 's', base];
+  return [base];
+}
+
+/**
+ * Map a _fence block name to candidate texture paths (ordered: best first).
+ * nether_brick_fence → block/nether_bricks
+ * oak_fence → block/oak_planks
+ * crimson_fence / warped_fence → block/{wood}_planks
+ */
+function fenceTextureCandidates(name) {
+  // nether_brick_fence is the only non-wood fence
+  if (name === 'nether_brick_fence') return ['block/nether_bricks'];
+  const wood = name.replace(/_fence$/, '');
+  return [`block/${wood}_planks`, `block/${wood}`];
+}
+
+/**
+ * Synthesize a thin glass-pane plate (7,0,0)→(9,16,16) standing along Z-axis.
+ * Texture: for glass_pane → block/glass; {color}_stained_glass_pane → block/{color}_stained_glass.
+ */
+function glassPaneTexture(name) {
+  if (name === 'glass_pane') return 'block/glass';
+  // {color}_stained_glass_pane → block/{color}_stained_glass
+  return 'block/' + name.replace(/_pane$/, '');
+}
+
 // ── Parent chain walker ───────────────────────────────────────────────────────
 
 /**
- * Resolve a block model by walking the parent chain.
- * @param {string}   version    Minecraft version string (for getAsset key)
- * @param {string}   modelName  e.g. "block/stone" or "block/oak_stairs"
- * @param {Function} getAsset   async (version, relPath) => Buffer|null
- * @returns {Promise<{elements:Array, textures:object}|null>}
- *   null means caller should fall back to flat sprite
+ * Walk the parent chain and resolve merged textures + elements.
+ * Returns null when the CDN has no model JSON for the given path.
  */
-async function resolveModel(version, modelName, getAsset) {
-  // Normalize
-  modelName = stripNs(modelName);
-  if (!modelName.startsWith('block/') && !modelName.startsWith('item/')) {
-    modelName = 'block/' + modelName;
-  }
-
-  // Item models → flat sprite (handled by caller)
-  if (modelName.startsWith('item/')) return null;
-
-  // Walk parent chain, collecting layers
+async function resolveModelChain(version, modelName, getAsset) {
   const layers = []; // [{textures, elements}] from child to root
   let current = modelName;
 
@@ -122,11 +171,10 @@ async function resolveModel(version, modelName, getAsset) {
     }
   }
 
-  // Resolve #ref chains in texture values
+  // Resolve #ref chains in texture values (two passes for nested refs)
   for (const k of Object.keys(mergedTextures)) {
     mergedTextures[k] = resolveRef(mergedTextures[k], mergedTextures);
   }
-  // Second pass — some values may still be unresolved after one pass
   for (const k of Object.keys(mergedTextures)) {
     if (mergedTextures[k] && mergedTextures[k].startsWith('#')) {
       mergedTextures[k] = resolveRef(mergedTextures[k], mergedTextures);
@@ -139,23 +187,106 @@ async function resolveModel(version, modelName, getAsset) {
     if (layer.elements) { elements = layer.elements; break; }
   }
 
-  // No elements found → synthesize from merged textures
+  // No explicit elements → synthesize a full cube from merged textures
   if (!elements) {
     const synth = synthesizeFullCube(mergedTextures);
     if (!synth) return null;
     return synth;
   }
 
-  // Resolve #ref texture references in element face definitions
-  // (elements reference textures via "#key"; we keep them as-is and let
-  //  the renderer strip the '#' when looking up in textures map)
-  // However we DO need to resolve the texture values themselves:
   const finalTextures = {};
   for (const [k, v] of Object.entries(mergedTextures)) {
     if (v && !v.startsWith('#')) finalTextures[k] = v;
   }
 
   return { elements, textures: finalTextures };
+}
+
+/**
+ * Resolve a block model. Fallback order:
+ *  1. parent-chain  2. _wall  3. waxed_  4. suspicious_
+ *  5. infested_     6. _fence 7. _glass_pane 8. iron_bars/chain
+ * Returns null → caller uses flat sprite.
+ */
+async function resolveModel(version, modelName, getAsset) {
+  // Normalize
+  modelName = stripNs(modelName);
+  if (!modelName.startsWith('block/') && !modelName.startsWith('item/')) {
+    modelName = 'block/' + modelName;
+  }
+
+  // Item models → flat sprite (handled by caller)
+  if (modelName.startsWith('item/')) return null;
+
+  // Step 1: normal parent-chain resolution
+  const chain = await resolveModelChain(version, modelName, getAsset);
+  if (chain) return chain;
+
+  // Bare block name for suffix/prefix checks
+  const blockName = modelName.replace(/^block\//, '');
+
+  // Step 2: _wall synthesis
+  if (blockName.endsWith('_wall')) {
+    const candidates = wallBaseName(blockName);
+    for (const base of candidates) {
+      const texPath = `block/${base}`;
+      const texBuf = await getAsset(version, `textures/${texPath}.png`);
+      if (texBuf) return synthesizeWallPillar(texPath);
+    }
+    // No matching texture found; fall through
+  }
+
+  // Step 3: waxed_ → strip prefix and recurse (one level only)
+  if (blockName.startsWith('waxed_')) {
+    const unwaxed = 'block/' + blockName.replace(/^waxed_/, '');
+    const unwaxedChain = await resolveModelChain(version, unwaxed, getAsset);
+    if (unwaxedChain) return unwaxedChain;
+  }
+
+  // Step 4: suspicious_ → synthesize cube with frame-0 or base texture
+  if (blockName.startsWith('suspicious_')) {
+    const base = blockName.replace(/^suspicious_/, ''); // "sand" or "gravel"
+    const frame0 = `block/${blockName}_0`;
+    const frame0Buf = await getAsset(version, `textures/${frame0}.png`);
+    if (frame0Buf) {
+      return synthesizeFullCube({ all: frame0 }) ||
+        synthesizeFullCube({ all: `block/${base}` });
+    }
+    // Fall back to plain base texture
+    const baseBuf = await getAsset(version, `textures/block/${base}.png`);
+    if (baseBuf) return synthesizeFullCube({ all: `block/${base}` });
+  }
+
+  // Step 5: infested_ → strip prefix and recurse (visually identical to base block)
+  if (blockName.startsWith('infested_')) {
+    const stripped = 'block/' + blockName.replace(/^infested_/, '');
+    const strippedChain = await resolveModelChain(version, stripped, getAsset);
+    if (strippedChain) return strippedChain;
+  }
+
+  // Step 6: _fence suffix (NOT _fence_gate) → fence pillar with planks texture
+  if (blockName.endsWith('_fence') && !blockName.endsWith('_fence_gate')) {
+    for (const texPath of fenceTextureCandidates(blockName)) {
+      const buf = await getAsset(version, `textures/${texPath}.png`);
+      if (buf) return synthesizePillarBox([6, 0, 6], [10, 16, 10], texPath);
+    }
+  }
+
+  // Step 7: _stained_glass_pane or glass_pane → thin standing plate
+  if (blockName.endsWith('_glass_pane') || blockName === 'glass_pane') {
+    const texPath = glassPaneTexture(blockName);
+    const buf = await getAsset(version, `textures/${texPath}.png`);
+    if (buf) return synthesizePillarBox([7, 0, 0], [9, 16, 16], texPath);
+  }
+
+  // Step 8: iron_bars or chain → thin post pillar
+  if (blockName === 'iron_bars' || blockName === 'chain') {
+    const texPath = `block/${blockName}`;
+    const buf = await getAsset(version, `textures/${texPath}.png`);
+    if (buf) return synthesizePillarBox([6, 0, 6], [10, 16, 10], texPath);
+  }
+
+  return null;
 }
 
 module.exports = { resolveModel };
