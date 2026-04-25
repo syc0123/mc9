@@ -4,70 +4,44 @@
  * Render Minecraft block icons for all supported versions.
  *
  * Blocks  → 64x64 3D rasterized PNG (top + south + east faces, creative-inventory angle)
- * Items   → flat sprite as-is from upstream texture assets
+ * Items   → flat sprite as-is from Mojang asset server
  *
  * Output: public/icons/{version}/{name}.png
- * Cache : .texture-cache/{textureVersion}/... (raw assets, skip re-download)
+ * Cache : .texture-cache/{version}/... (raw assets, skip re-download)
  */
 
 const fs   = require('fs');
 const path = require('path');
-const https = require('https');
 const { PNG } = require('pngjs');
 const md   = require('minecraft-data');
 
-const { resolveModel } = require('./lib/model-parser');
-const { renderBlock }  = require('./lib/renderer3d');
+const { resolveModel }       = require('./lib/model-parser');
+const { renderBlock }        = require('./lib/renderer3d');
+const { MojangAssetFetcher } = require('./lib/mojang-asset-fetcher');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const VERSIONS = ['1.21.4', '1.20.4', '1.19.4', '1.18.2', '1.16.5', '1.12.2', '1.8.9'];
 
+// Mojang 매니페스트의 실제 버전 ID (구 GitHub 미러는 1.8.9 → '1.8' 이었음)
 const TEXTURE_VERSION = {
   '1.21.4': '1.21.4', '1.20.4': '1.20.4', '1.19.4': '1.19.4',
-  '1.18.2': '1.18.2', '1.16.5': '1.16.5', '1.12.2': '1.12.2', '1.8.9': '1.8',
+  '1.18.2': '1.18.2', '1.16.5': '1.16.5', '1.12.2': '1.12.2', '1.8.9': '1.8.9',
 };
 
 const ROOT      = path.join(__dirname, '..');
 const CACHE_DIR = path.join(ROOT, '.texture-cache');
 const OUT_BASE  = path.join(ROOT, 'public', 'icons');
 
-const OUTPUT_SIZE = 192; // final PNG size — integer multiple of 32/48/64 display sizes (aliasing-free)
+const OUTPUT_SIZE = 192;
 const BATCH_SIZE  = 10;
 
-// ── Network ───────────────────────────────────────────────────────────────────
+// ── Asset fetcher (Mojang 공식 서버) ─────────────────────────────────────────
 
-/** Fetch URL → Buffer, or null on 404 */
-async function fetchUrl(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode === 404) { res.resume(); resolve(null); return; }
-      if (res.statusCode !== 200) {
-        res.resume();
-        reject(new Error(`HTTP ${res.statusCode}: ${url}`));
-        return;
-      }
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
-      res.on('error', reject);
-    }).on('error', reject);
-  });
-}
+const fetcher = new MojangAssetFetcher(CACHE_DIR);
 
-/** Get asset from cache or download from minecraft-assets CDN */
 async function getAsset(version, relPath) {
-  const tv = TEXTURE_VERSION[version];
-  const cached = path.join(CACHE_DIR, tv, relPath);
-  if (fs.existsSync(cached)) return fs.readFileSync(cached);
-
-  const url = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/${tv}/assets/minecraft/${relPath}`;
-  const buf = await fetchUrl(url);
-  if (buf) {
-    fs.mkdirSync(path.dirname(cached), { recursive: true });
-    fs.writeFileSync(cached, buf);
-  }
-  return buf; // null if 404
+  return fetcher.getAsset(TEXTURE_VERSION[version] || version, relPath);
 }
 
 // ── Texture loading ───────────────────────────────────────────────────────────

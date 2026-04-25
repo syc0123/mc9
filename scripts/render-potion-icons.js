@@ -16,13 +16,15 @@
 
 const fs    = require('fs');
 const path  = require('path');
-const https = require('https');
 const { PNG } = require('pngjs');
+const { MojangAssetFetcher } = require('./lib/mojang-asset-fetcher');
 
 const ROOT      = path.join(__dirname, '..');
 const OUT_DIR   = path.join(ROOT, 'public', 'icons', '1.21.4');
-const CACHE_DIR = path.join(ROOT, '.texture-cache', '1.21.4', 'textures', 'item');
+const CACHE_DIR = path.join(ROOT, '.texture-cache');
 const OUTPUT_SIZE = 192;
+
+const fetcher = new MojangAssetFetcher(CACHE_DIR);
 
 // potions.ts 의 color 값과 1:1 대응
 const POTION_COLORS = [
@@ -44,29 +46,8 @@ const POTION_COLORS = [
   '#339900', // luck
 ];
 
-async function fetchUrl(url) {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      if (res.statusCode === 404) { res.resume(); resolve(null); return; }
-      if (res.statusCode !== 200) { res.resume(); reject(new Error(`HTTP ${res.statusCode}`)); return; }
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
-      res.on('error', reject);
-    }).on('error', reject);
-  });
-}
-
 async function getAsset(name) {
-  const cached = path.join(CACHE_DIR, `${name}.png`);
-  if (fs.existsSync(cached)) return fs.readFileSync(cached);
-  const url = `https://raw.githubusercontent.com/InventivetalentDev/minecraft-assets/1.21.4/assets/minecraft/textures/item/${name}.png`;
-  const buf = await fetchUrl(url);
-  if (buf) {
-    fs.mkdirSync(CACHE_DIR, { recursive: true });
-    fs.writeFileSync(cached, buf);
-  }
-  return buf;
+  return fetcher.getAsset('1.21.4', `textures/item/${name}.png`);
 }
 
 function parsePNG(buf) {
