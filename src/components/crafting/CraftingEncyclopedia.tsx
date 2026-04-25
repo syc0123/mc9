@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import type { McItem, McRecipe } from '@/lib/data/mc-items'
+import type { McItem, McRecipe, SmeltingRecipe, InteractionRecipe } from '@/lib/data/mc-items'
+import { HIDDEN_ITEMS } from '@/lib/data/mc-items'
 import { ItemGrid } from './ItemGrid'
 import { RecipePanel } from './RecipePanel'
 import { Search, ChevronDown } from 'lucide-react'
@@ -11,16 +12,29 @@ type Props = {
   versions: string[]
 }
 
+type SmeltingMap = Record<string, SmeltingRecipe>
+type InteractionMap = Record<string, InteractionRecipe>
+
 export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
   const [version, setVersion] = useState(initialVersion)
   const [items, setItems] = useState<McItem[]>([])
   const [recipes, setRecipes] = useState<McRecipe[]>([])
+  const [smelting, setSmelting] = useState<SmeltingMap>({})
+  const [interactions, setInteractions] = useState<InteractionMap>({})
   const [search, setSearch] = useState('')
   const [navStack, setNavStack] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadVersion(initialVersion)
+    // Smelting + interactions are version-agnostic; load once
+    Promise.all([
+      fetch('/data/smelting.json').then(r => r.json()).catch(() => ({})),
+      fetch('/data/interactions.json').then(r => r.json()).catch(() => ({})),
+    ]).then(([s, i]) => {
+      setSmelting(s)
+      setInteractions(i)
+    })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function loadVersion(v: string) {
@@ -30,7 +44,8 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
       fetch(`/data/${v}/recipes.json`),
     ])
     const [newItems, newRecipes] = await Promise.all([itemsRes.json(), recipesRes.json()])
-    setItems(newItems)
+    // Filter hidden items (air, cave_air, void_air)
+    setItems((newItems as McItem[]).filter(i => !HIDDEN_ITEMS.has(i.name)))
     setRecipes(newRecipes)
     setLoading(false)
   }
@@ -87,7 +102,7 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
         <p className="text-xs font-medium uppercase tracking-widest text-foreground-muted mb-1">Reference</p>
         <h1 className="text-3xl font-bold tracking-tight mb-1">아이템 사전</h1>
         <p className="text-sm text-foreground-muted">
-          버전별 전체 아이템과 조합법. 아이콘을 클릭해 조합법을 탐색하세요.
+          버전별 전체 아이템과 조합법, 화로 제련, 상호작용 제작법. 아이콘을 클릭해 탐색하세요.
         </p>
       </div>
 
@@ -117,18 +132,18 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
         <div className="flex items-center gap-3 text-xs text-foreground-muted">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm border border-primary/50 bg-primary/5 inline-block" />
-            조합 가능
+            제작 가능
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm border border-border bg-surface inline-block opacity-60" />
-            자연 획득
+            기타
           </span>
         </div>
       </div>
 
       {/* Stats */}
       <p className="text-xs text-foreground-muted mb-3">
-        {loading ? '로딩 중...' : `${filtered.length}개 아이템 · 레시피 있는 아이템: ${recipeMap.size}개`}
+        {loading ? '로딩 중...' : `${filtered.length}개 아이템`}
       </p>
 
       {/* Main layout */}
@@ -138,6 +153,8 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
           <ItemGrid
             items={filtered}
             recipeMap={recipeMap}
+            smeltingMap={smelting}
+            interactionsMap={interactions}
             selected={currentItem}
             onSelect={handleSelect}
           />
@@ -145,11 +162,13 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
 
         {/* Recipe Panel */}
         {currentItem && (
-          <div className="w-full lg:w-80 flex-shrink-0 border border-border rounded-xl bg-surface p-4 flex flex-col min-h-0 max-h-[600px] lg:max-h-none overflow-hidden">
+          <div className="w-full lg:w-96 flex-shrink-0 border border-border rounded-xl bg-surface p-4 flex flex-col min-h-0 max-h-[calc(100vh-12rem)] overflow-hidden">
             <RecipePanel
               itemName={currentItem}
               itemMap={itemMap}
               recipeMap={recipeMap}
+              smeltingMap={smelting}
+              interactionsMap={interactions}
               navStack={navStack}
               onNavigate={handleNavigate}
               onBreadcrumb={handleBreadcrumb}

@@ -1,0 +1,106 @@
+{
+  "iron_ingot": {
+    "from": ["raw_iron", "iron_ore", "deepslate_iron_ore"],
+    "tool": "furnace",
+    "alt_tool": "blast_furnace",
+    "xp": 0.7
+  },
+  "gold_ingot": {
+    "from": ["raw_gold", "gold_ore", "deepslate_gold_ore", "nether_gold_ore"],
+    "tool": "furnace",
+    "alt_tool": "blast_furnace",
+    "xp": 1.0
+  },
+  "copper_ingot": {
+    "from": ["raw_copper", "copper_ore", "deepslate_copper_ore"],
+    "tool": "furnace",
+    "alt_tool": "blast_furnace",
+    "xp": 0.7
+  },
+  "netherite_scrap": {
+    "from": ["ancient_debris"],
+    "tool": "furnace",
+    "alt_tool": "blast_furnace",
+    "xp": 2.0
+  },
+  "diamond": {
+    "from": ["diamond_ore", "deepslate_diamond_ore"],
+    "tool": "furnace",
+    "xp": 1.0
+  },
+  "emerald": {
+    "from": ["emerald_ore", "deepslate_emerald_ore"],
+    "tool": "furnace",
+    "xp": 1.0
+  },
+  "lapis_lazuli": {
+    "from": ["lapis_ore", "deepslate_lapis_ore"],
+    "tool": "furnace",
+    "xp": 0.2
+  },
+  "redstone": {
+    "from": ["redstone_ore", "deepslate_redstone_ore"],
+    "tool": "furnace",
+    "xp": 0.7
+  },
+  "coal": {
+    "from": ["coal_ore", "deepslate_coal_ore"],
+    "tool": "furnace",
+    "xp": 0.1
+  },
+  "quartz": {
+    "from": ["nether_quartz_ore"],
+    "tool": "furnace",
+    "xp": 0.2
+  },
+  "glass": { "from": ["sand", "red_sand"], "tool": "furnace", "xp": 0.1 },
+  "stone": { "from": ["cobblestone"], "tool": "furnace", "xp": 0.1 },
+  "smooth_stone": { "from": ["stone"], "tool": "furnace", "xp": 0.1 },
+  "smooth_sandstone": { "from": ["sandstone"], "tool": "furnace", "xp": 0.1 },
+  "smooth_red_sandstone": { "from": ["red_sandstone"], "tool": "furnace", "xp": 0.1 },
+  "smooth_quartz": { "from": ["quartz_block"], "tool": "furnace", "xp": 0.1 },
+  "smooth_basalt": { "from": ["basalt"], "tool": "furnace", "xp": 0.1 },
+  "deepslate": { "from": ["cobbled_deepslate"], "tool": "furnace", "xp": 0.1 },
+  "cracked_stone_bricks": { "from": ["stone_bricks"], "tool": "furnace", "xp": 0.1 },
+  "cracked_polished_blackstone_bricks": { "from": ["polished_blackstone_bricks"], "tool": "furnace", "xp": 0.1 },
+  "cracked_deepslate_bricks": { "from": ["deepslate_bricks"], "tool": "furnace", "xp": 0.1 },
+  "cracked_deepslate_tiles": { "from": ["deepslate_tiles"], "tool": "furnace", "xp": 0.1 },
+  "cracked_nether_bricks": { "from": ["nether_bricks"], "tool": "furnace", "xp": 0.1 },
+  "terracotta": { "from": ["clay"], "tool": "furnace", "xp": 0.35 },
+  "brick": { "from": ["clay_ball"], "tool": "furnace", "xp": 0.3 },
+  "nether_brick": { "from": ["netherrack"], "tool": "furnace", "xp": 0.1 },
+  "popped_chorus_fruit": { "from": ["chorus_fruit"], "tool": "furnace", "xp": 0.1 },
+  "charcoal": {
+    "from": ["oak_log", "spruce_log", "birch_log", "jungle_log", "acacia_log", "dark_oak_log", "mangrove_log", "cherry_log", "pale_oak_log", "crimson_stem", "warped_stem"],
+    "tool": "furnace",
+    "xp": 0.15
+  },
+  "green_dye": { "from": ["cactus"], "tool": "furnace", "xp": 1.0 },
+  "lime_dye": { "from": ["sea_pickle"], "tool": "furnace", "xp": 0.1 },
+  "cooked_beef": { "from": ["beef"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_porkchop": { "from": ["porkchop"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_chicken": { "from": ["chicken"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_mutton": { "from": ["mutton"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_rabbit": { "from": ["rabbit"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_cod": { "from": ["cod"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "cooked_salmon": { "from": ["salmon"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "baked_potato": { "from": ["potato"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.35 },
+  "dried_kelp": { "from": ["kelp"], "tool": "furnace", "alt_tool": "smoker", "xp": 0.1 },
+  "white_glazed_terracotta": { "from": ["white_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "orange_glazed_terracotta": { "from": ["orange_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "magenta_glazed_terracotta": { "from": ["magenta_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "light_blue_glazed_terracotta": { "from": ["light_blue_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "yellow_glazed_terracotta": { "from": ["yellow_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "lime_glazed_terracotta": { "from": ["lime_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "pink_glazed_terracotta": { "from": ["pink_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "gray_glazed_terracotta": { "from": ["gray_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "light_gray_glazed_terracotta": { "from": ["light_gray_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "cyan_glazed_terracotta": { "from": ["cyan_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "purple_glazed_terracotta": { "from": ["purple_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "blue_glazed_terracotta": { "from": ["blue_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "brown_glazed_terracotta": { "from": ["brown_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "green_glazed_terracotta": { "from": ["green_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "red_glazed_terracotta": { "from": ["red_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "black_glazed_terracotta": { "from": ["black_terracotta"], "tool": "furnace", "xp": 0.1 },
+  "sponge": { "from": ["wet_sponge"], "tool": "furnace", "xp": 0.15 }
+}

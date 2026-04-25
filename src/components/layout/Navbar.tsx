@@ -21,10 +21,9 @@ export default async function Navbar() {
             <span>MC9</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/potions">포션 사전</NavLink>
+            <NavLink href="/crafting">아이템 사전</NavLink>
+            <NavLink href="/potions">포션</NavLink>
             <NavLink href="/enchants">인챈트</NavLink>
-            <NavLink href="/crafting">크래프팅</NavLink>
-            <NavLink href="/items">아이템</NavLink>
             {user && <NavLink href="/servers">내 서버</NavLink>}
           </nav>
         </div>

@@ -1,19 +1,24 @@
 'use client'
 
-import type { McItem } from '@/lib/data/mc-items'
+import type { McItem, SmeltingRecipe, InteractionRecipe } from '@/lib/data/mc-items'
 
 type Props = {
   items: McItem[]
   recipeMap: Map<string, unknown[]>
+  smeltingMap: Record<string, SmeltingRecipe>
+  interactionsMap: Record<string, InteractionRecipe>
   selected: string | null
   onSelect: (name: string) => void
 }
 
-export function ItemGrid({ items, recipeMap, selected, onSelect }: Props) {
+export function ItemGrid({ items, recipeMap, smeltingMap, interactionsMap, selected, onSelect }: Props) {
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(48px,1fr))] gap-1">
       {items.map((item) => {
         const hasCraft = recipeMap.has(item.name)
+        const hasSmelt = !!smeltingMap[item.name]
+        const hasInteract = !!interactionsMap[item.name]
+        const obtainable = hasCraft || hasSmelt || hasInteract
         const isSelected = selected === item.name
         return (
           <button
@@ -22,19 +27,19 @@ export function ItemGrid({ items, recipeMap, selected, onSelect }: Props) {
             onClick={() => onSelect(item.name)}
             className={[
               'w-12 h-12 flex items-center justify-center rounded border transition-all',
-              'hover:scale-110 hover:z-10 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
-              hasCraft
+              'hover:scale-110 hover:z-10 relative focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer',
+              obtainable
                 ? 'border-primary/50 bg-primary/5 hover:border-primary hover:bg-primary/10'
-                : 'border-border bg-surface opacity-60 hover:opacity-90',
+                : 'border-border bg-surface opacity-70 hover:opacity-100',
               isSelected ? 'ring-2 ring-primary scale-110' : '',
             ].join(' ')}
           >
             <img
               src={item.iconUrl}
               alt={item.displayName}
-              width={32}
-              height={32}
-              className="w-8 h-8 object-contain"
+              width={40}
+              height={40}
+              className="w-10 h-10 object-contain"
               style={{ imageRendering: 'pixelated' }}
               onError={(e) => {
                 const el = e.target as HTMLImageElement
