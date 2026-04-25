@@ -49,13 +49,13 @@ export function RecipeGrid({ recipe, itemMap, recipeMap, onNavigate, is2x2 = fal
             title={slot ? itemMap.get(slot)?.displayName ?? slot : undefined}
             onClick={() => slot && clickable && onNavigate(slot)}
             className={[
-              'w-10 h-10 bg-background rounded border flex items-center justify-center overflow-hidden transition-all',
+              'w-12 h-12 bg-background rounded border flex items-center justify-center overflow-hidden transition-all',
               clickable
                 ? 'border-primary/60 cursor-pointer hover:border-primary hover:bg-primary/5 hover:scale-105'
                 : 'border-border',
             ].join(' ')}
           >
-            <ItemIcon name={slot} itemMap={itemMap} size={28} />
+            <ItemIcon name={slot} itemMap={itemMap} size={36} />
           </div>
         )
       })}

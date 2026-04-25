@@ -234,8 +234,8 @@ function Slot({
   highlight?: boolean
   title?: string
 }) {
-  const size = large ? 56 : 40
-  const icon = large ? 44 : 30
+  const size = large ? 64 : 48
+  const icon = large ? 52 : 36
   const cls = [
     'flex items-center justify-center bg-background rounded border transition-all',
     highlight ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border',
