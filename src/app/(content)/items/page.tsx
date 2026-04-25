@@ -1,15 +1,13 @@
-import { getItems } from "@/lib/data/mc-items"
+import { SUPPORTED_VERSIONS, DEFAULT_VERSION } from "@/lib/data/mc-items"
 import ItemGrid from "@/components/items/ItemGrid"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "아이템 목록 — 마인크래프트 전체 아이템",
-  description: "마인크래프트 1333개 아이템 전체 목록. 아이콘, 스택 크기, 내구도 확인.",
+  description: "마인크래프트 1300+ 아이템 전체 목록. 아이콘, 스택 크기, 내구도 확인.",
 }
 
 export default function ItemsPage() {
-  const items = getItems()
-
   return (
     <div>
       <div className="mb-10">
@@ -19,7 +17,7 @@ export default function ItemsPage() {
           마인크래프트의 모든 아이템을 검색하고 확인하세요.
         </p>
       </div>
-      <ItemGrid items={items} />
+      <ItemGrid initialVersion={DEFAULT_VERSION} versions={[...SUPPORTED_VERSIONS]} />
     </div>
   )
 }
