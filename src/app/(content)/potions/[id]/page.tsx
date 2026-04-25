@@ -1,7 +1,9 @@
-import { POTIONS } from "@/lib/data/potions"
-import { notFound } from "next/navigation"
-import type { Metadata } from "next"
-import Link from "next/link"
+import { POTIONS } from '@/lib/data/potions'
+import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import { PotionIcon } from '@/components/potions/PotionIcon'
+import { BrewingChain, PotionVariants, PotionForms } from '@/components/potions/BrewingChain'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -11,87 +13,125 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
-  const potion = POTIONS.find((p) => p.id === id)
-  if (!potion) return { title: "포션을 찾을 수 없습니다" }
+  const p = POTIONS.find((p) => p.id === id)
+  if (!p) return { title: '포션을 찾을 수 없습니다' }
   return {
-    title: `${potion.nameKo} 조합법 — MC9 포션 사전`,
-    description: potion.description,
+    title: `${p.nameKo} 조합법 — MC9 포션 사전`,
+    description: p.description,
   }
+}
+
+const TYPE_STYLE = {
+  positive: {
+    badge: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    label: '긍정 효과',
+    section: 'bg-emerald-500/5 border-emerald-500/15',
+    text: 'text-emerald-700 dark:text-emerald-400',
+  },
+  negative: {
+    badge: 'bg-destructive/10 text-destructive border-destructive/20',
+    label: '부정 효과',
+    section: 'bg-destructive/5 border-destructive/15',
+    text: 'text-destructive',
+  },
+  mixed: {
+    badge: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    label: '복합 효과',
+    section: 'bg-amber-500/5 border-amber-500/15',
+    text: 'text-amber-700 dark:text-amber-400',
+  },
 }
 
 export default async function PotionDetailPage({ params }: Props) {
   const { id } = await params
-  const potion = POTIONS.find((p) => p.id === id)
-  if (!potion) notFound()
+  const p = POTIONS.find((p) => p.id === id)
+  if (!p) notFound()
 
-  const typeColors: Record<string, string> = {
-    positive: "bg-green-100 text-green-800",
-    negative: "bg-red-100 text-red-800",
-    mixed: "bg-yellow-100 text-yellow-800",
-  }
-
-  const typeLabel: Record<string, string> = {
-    positive: "긍정",
-    negative: "부정",
-    mixed: "복합",
-  }
-
+  const style = TYPE_STYLE[p.type]
   const editionLabel =
-    potion.edition === "both"
-      ? "Java & Bedrock"
-      : potion.edition === "java"
-        ? "Java Edition"
-        : "Bedrock Edition"
+    p.edition === 'both'
+      ? 'Java & Bedrock'
+      : p.edition === 'java'
+        ? 'Java Edition'
+        : 'Bedrock Edition'
 
   return (
     <div className="max-w-2xl mx-auto">
-      <Link href="/potions" className="text-sm text-gray-500 hover:text-green-600 mb-6 inline-block">
-        뒤로
+      {/* 뒤로 */}
+      <Link
+        href="/potions"
+        className="inline-flex items-center gap-1.5 text-sm text-foreground-muted hover:text-primary transition-colors mb-6"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        포션 사전
       </Link>
-      <div className="flex items-center gap-3 mb-2">
-        <h1 className="text-3xl font-bold">{potion.nameKo}</h1>
-        <span className={`text-sm px-3 py-1 rounded-full font-medium ${typeColors[potion.type]}`}>
-          {typeLabel[potion.type]}
-        </span>
-      </div>
-      <p className="text-gray-400 text-sm mb-6">{potion.name}</p>
-      <p className="text-gray-700 mb-8 text-lg">{potion.description}</p>
 
-      <div className="space-y-6">
-        <div className="p-6 rounded-xl bg-amber-50 border border-amber-200">
-          <h2 className="font-semibold mb-3 text-amber-800">기본 재료</h2>
-          <p className="text-amber-900 font-medium">{potion.baseIngredient}</p>
-        </div>
-
-        {potion.modifiers.length > 0 && (
-          <div className="p-6 rounded-xl bg-blue-50 border border-blue-200">
-            <h2 className="font-semibold mb-3 text-blue-800">변형 재료</h2>
-            <ul className="space-y-1">
-              {potion.modifiers.map((mod, i) => (
-                <li key={i} className="text-blue-900">
-                  {mod}
-                </li>
-              ))}
-            </ul>
+      {/* 헤더 */}
+      <div className="flex items-start gap-5 mb-6">
+        <PotionIcon color={p.color} size={72} />
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h1 className="text-2xl font-bold tracking-tight">{p.nameKo}</h1>
+            <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${style.badge}`}>
+              {style.label}
+            </span>
+            <span className="text-xs px-2 py-1 rounded border border-border text-foreground-muted font-medium">
+              {editionLabel}
+            </span>
           </div>
+          <p className="text-sm text-foreground-muted mb-3">{p.name}</p>
+          <p className="text-sm text-foreground leading-relaxed">{p.description}</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {/* 효과 */}
+        <section className={`rounded-xl border p-5 ${style.section}`}>
+          <h2 className={`text-xs font-semibold uppercase tracking-widest mb-3 ${style.text}`}>
+            효과
+          </h2>
+          <div className="space-y-2">
+            {p.effects.map((e, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <span className="text-sm font-medium">{e.name}</span>
+                <div className="flex items-center gap-3 text-sm text-foreground-muted">
+                  {e.duration && <span>{e.duration}</span>}
+                  {e.amplifier && (
+                    <span className={`font-semibold ${style.text}`}>+{e.amplifier} HP</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 양조법 */}
+        <section className="rounded-xl border border-border bg-surface p-5">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground-muted mb-4">
+            양조법
+          </h2>
+          <BrewingChain potion={p} />
+        </section>
+
+        {/* 변형 */}
+        {(p.canExtend || p.canAmplify) && (
+          <section className="rounded-xl border border-border bg-surface p-5">
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground-muted mb-4">
+              변형
+            </h2>
+            <PotionVariants potion={p} />
+          </section>
         )}
 
-        <div className="p-6 rounded-xl bg-purple-50 border border-purple-200">
-          <h2 className="font-semibold mb-3 text-purple-800">효과</h2>
-          {potion.effects.map((effect, i) => (
-            <div key={i} className="flex justify-between items-center">
-              <span className="text-purple-900">{effect.name}</span>
-              <div className="text-right text-sm text-purple-700">
-                {effect.duration && <span className="mr-3">{effect.duration}</span>}
-                {effect.amplifier && <span>+{effect.amplifier} HP</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="p-4 rounded-lg bg-gray-100 text-sm text-gray-600">
-          지원 버전: {editionLabel}
-        </div>
+        {/* 다른 형태 */}
+        <section className="rounded-xl border border-border bg-surface p-5">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-foreground-muted mb-4">
+            다른 형태
+          </h2>
+          <PotionForms color={p.color} />
+        </section>
       </div>
     </div>
   )
