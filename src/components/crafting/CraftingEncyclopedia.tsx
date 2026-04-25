@@ -146,37 +146,41 @@ export function CraftingEncyclopedia({ initialVersion, versions }: Props) {
         {loading ? '로딩 중...' : `${filtered.length}개 아이템`}
       </p>
 
-      {/* Main layout — page-level scroll, recipe panel sticks below sticky navbar */}
-      <div className={`flex gap-4 items-start ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
-        {/* Item Grid (extra padding so selected ring/scale-110 isn't clipped by container edges) */}
-        <div className={`flex-1 min-w-0 px-1 py-1 ${currentItem ? 'hidden lg:block' : ''}`}>
-          <ItemGrid
-            items={filtered}
+      {/* Item Grid: full-width, right-padded on desktop when fixed panel is shown */}
+      <div className={`px-1 py-1 ${loading ? 'opacity-50 pointer-events-none' : ''} ${currentItem ? 'hidden lg:block lg:pr-[26rem]' : ''}`}>
+        <ItemGrid
+          items={filtered}
+          recipeMap={recipeMap}
+          smeltingMap={smelting}
+          interactionsMap={interactions}
+          selected={currentItem}
+          onSelect={handleSelect}
+        />
+      </div>
+
+      {/* Recipe Panel — pinned from the moment of selection.
+          Mobile: full-width below header. Desktop: fixed at top-right, container-aligned. */}
+      {currentItem && (
+        <div
+          className="
+            mt-4 w-full border border-border rounded-xl bg-surface p-4 flex flex-col overflow-hidden
+            lg:mt-0 lg:fixed lg:top-20 lg:w-96 lg:max-h-[calc(100vh-6rem)] lg:z-30
+            lg:right-[max(1rem,calc((100vw-64rem)/2+1rem))]
+          "
+        >
+          <RecipePanel
+            itemName={currentItem}
+            itemMap={itemMap}
             recipeMap={recipeMap}
             smeltingMap={smelting}
             interactionsMap={interactions}
-            selected={currentItem}
-            onSelect={handleSelect}
+            navStack={navStack}
+            onNavigate={handleNavigate}
+            onBreadcrumb={handleBreadcrumb}
+            onClose={handleClose}
           />
         </div>
-
-        {/* Recipe Panel — sticky below navbar (h-14 = top-14), max-height fits viewport */}
-        {currentItem && (
-          <div className="w-full lg:w-96 flex-shrink-0 border border-border rounded-xl bg-surface p-4 flex flex-col lg:sticky lg:top-20 max-h-[calc(100vh-6rem)] overflow-hidden">
-            <RecipePanel
-              itemName={currentItem}
-              itemMap={itemMap}
-              recipeMap={recipeMap}
-              smeltingMap={smelting}
-              interactionsMap={interactions}
-              navStack={navStack}
-              onNavigate={handleNavigate}
-              onBreadcrumb={handleBreadcrumb}
-              onClose={handleClose}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   )
 }

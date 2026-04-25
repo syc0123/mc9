@@ -159,32 +159,100 @@ function SmeltingSection({
   return (
     <div className="p-3 rounded-lg border border-border bg-background">
       <SectionHeader icon={<Flame className="w-3.5 h-3.5" />} label={`${toolName} 제련${altToolName ? ` · ${altToolName}` : ''}`} />
-      <p className="text-xs text-foreground-muted mb-2">아래 재료를 {toolName}에 넣으면 만들어집니다</p>
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {smelt.from.map(ing => {
-          const clickable = recipeMap.has(ing) || smeltingMap[ing] || interactionsMap[ing]
-          return (
-            <div key={ing} className="flex items-center gap-2 p-1.5 rounded bg-surface border border-border">
-              <ItemIcon name={ing} itemMap={itemMap} size={28} />
-              {clickable ? (
-                <button
-                  onClick={() => onNavigate(ing)}
-                  className="text-sm text-primary hover:underline cursor-pointer truncate"
-                >
-                  {itemMap.get(ing)?.displayName ?? ing}
-                </button>
-              ) : (
-                <span className="text-sm text-foreground truncate">
-                  {itemMap.get(ing)?.displayName ?? ing}
-                </span>
-              )}
-              <ArrowRight className="w-3.5 h-3.5 text-foreground-muted ml-auto flex-shrink-0" />
-              <ItemIcon name={resultName} itemMap={itemMap} size={24} />
-            </div>
-          )
+          const clickable = recipeMap.has(ing) || !!smeltingMap[ing] || !!interactionsMap[ing]
+          return <FurnaceLayout key={ing} ingredient={ing} resultName={resultName} ingredientClickable={clickable} itemMap={itemMap} onNavigate={onNavigate} />
         })}
       </div>
       <p className="text-[10px] text-foreground-muted mt-2">경험치 +{smelt.xp}</p>
+    </div>
+  )
+}
+
+/**
+ * Furnace UI layout (vanilla style):
+ *   ┌──┐
+ *   │IN│  →  ┌────┐
+ *   └──┘     │ OUT│
+ *    🔥      └────┘
+ *   ┌──┐
+ *   │FU│  (any fuel)
+ *   └──┘
+ */
+function FurnaceLayout({
+  ingredient, resultName, ingredientClickable, itemMap, onNavigate,
+}: {
+  ingredient: string
+  resultName: string
+  ingredientClickable: boolean
+  itemMap: Map<string, McItem>
+  onNavigate: (name: string) => void
+}) {
+  const ingredientLabel = itemMap.get(ingredient)?.displayName ?? ingredient
+  return (
+    <div className="flex items-center gap-2.5 p-2 bg-surface border border-border rounded-lg">
+      {/* Furnace stack: ingredient → flame → fuel */}
+      <div className="flex flex-col items-center gap-1 flex-shrink-0">
+        <Slot
+          item={ingredient}
+          itemMap={itemMap}
+          clickable={ingredientClickable}
+          onClick={() => ingredientClickable && onNavigate(ingredient)}
+          title={ingredientLabel}
+        />
+        <Flame className="w-3.5 h-3.5 text-orange-400 fill-orange-400/40" />
+        <Slot
+          item="coal"
+          itemMap={itemMap}
+          dimmed
+          title="아무 연료 (석탄·숯·원목 등)"
+        />
+      </div>
+      {/* Progress arrow + label */}
+      <div className="flex flex-col items-center text-foreground-muted">
+        <ArrowRight className="w-5 h-5" />
+        <span className="text-[9px] mt-0.5 leading-none">제련</span>
+      </div>
+      {/* Result */}
+      <div className="flex-1 flex items-center justify-center">
+        <Slot item={resultName} itemMap={itemMap} large highlight title={itemMap.get(resultName)?.displayName ?? resultName} />
+      </div>
+    </div>
+  )
+}
+
+function Slot({
+  item, itemMap, clickable, onClick, dimmed, large, highlight, title,
+}: {
+  item: string
+  itemMap: Map<string, McItem>
+  clickable?: boolean
+  onClick?: () => void
+  dimmed?: boolean
+  large?: boolean
+  highlight?: boolean
+  title?: string
+}) {
+  const size = large ? 56 : 40
+  const icon = large ? 44 : 30
+  const cls = [
+    'flex items-center justify-center bg-background rounded border transition-all',
+    highlight ? 'border-primary/50 ring-1 ring-primary/20' : 'border-border',
+    clickable ? 'cursor-pointer hover:border-primary hover:bg-primary/5' : '',
+    dimmed ? 'opacity-50' : '',
+  ].join(' ')
+  const inner = <ItemIcon name={item} itemMap={itemMap} size={icon} />
+  if (clickable && onClick) {
+    return (
+      <button onClick={onClick} title={title} className={cls} style={{ width: size, height: size }}>
+        {inner}
+      </button>
+    )
+  }
+  return (
+    <div title={title} className={cls} style={{ width: size, height: size }}>
+      {inner}
     </div>
   )
 }
